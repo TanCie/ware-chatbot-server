@@ -139,13 +139,14 @@ app.post('/api/wati', async (req, res) => {
         const watiApiKey = process.env.WATI_API_KEY;
 
         if (watiApiUrl && watiApiKey) {
-            const watiResponse = await fetch(`${watiApiUrl}/api/v1/sendSessionMessage/${waId}`, {
+            // WATI expects messageText as a query parameter, not in the body
+            const encodedMessage = encodeURIComponent(response);
+            const watiResponse = await fetch(`${watiApiUrl}/api/v1/sendSessionMessage/${waId}?messageText=${encodedMessage}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${watiApiKey}`,
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ messageText: response })
+                }
             });
             const watiResult = await watiResponse.json();
             console.log('WATI API Status:', watiResponse.status);
