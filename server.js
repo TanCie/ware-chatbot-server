@@ -139,7 +139,7 @@ app.post('/api/wati', async (req, res) => {
         const watiApiKey = process.env.WATI_API_KEY;
 
         if (watiApiUrl && watiApiKey) {
-            await fetch(`${watiApiUrl}/api/v1/sendSessionMessage/${waId}`, {
+            const watiResponse = await fetch(`${watiApiUrl}/api/v1/sendSessionMessage/${waId}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${watiApiKey}`,
@@ -147,7 +147,16 @@ app.post('/api/wati', async (req, res) => {
                 },
                 body: JSON.stringify({ messageText: response })
             });
-            console.log('Response sent to WhatsApp');
+            const watiResult = await watiResponse.json();
+            console.log('WATI API Status:', watiResponse.status);
+            console.log('WATI API Response:', JSON.stringify(watiResult));
+            if (watiResponse.ok) {
+                console.log('Response sent to WhatsApp successfully!');
+            } else {
+                console.error('WATI API Error:', watiResult);
+            }
+        } else {
+            console.error('Missing WATI credentials - WATI_API_URL or WATI_API_KEY not set');
         }
 
         res.status(200).json({ success: true, response });
